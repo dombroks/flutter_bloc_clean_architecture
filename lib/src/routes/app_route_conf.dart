@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc_ca/src/features/product/presentation/bloc/product/product_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +62,7 @@ class AppRouteConf {
               path: AppRoute.updateProduct.path,
               name: AppRoute.updateProduct.name,
               builder: (_, state) {
-                final context = state.extra as BuildContext;
+                //final context = state.extra as BuildContext;
                 final params = state.pathParameters;
 
                 final product = UpdateProductParams(
