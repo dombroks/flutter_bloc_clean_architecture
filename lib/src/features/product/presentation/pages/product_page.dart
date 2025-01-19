@@ -8,9 +8,6 @@ import 'package:flutter_bloc_ca/src/core/blocs/network/network_event.dart';
 import 'package:flutter_bloc_ca/src/core/blocs/network/network_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
-
-import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/blocs/theme/theme_bloc.dart';
 import '../../../../core/blocs/translate/translate_bloc.dart';
 import '../../../../core/constants/list_translation_locale.dart';
@@ -95,109 +92,103 @@ class _ProductsPageState extends State<ProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) => getIt<AuthBloc>(),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthLogoutLoadingState) {
+              showDialog(
+                context: context,
+                builder: (_) => const AppLoadingWidget(),
+              );
+            } else if (state is AuthLogoutSuccessState) {
+              context.goNamed(AppRoute.login.name);
+              appSnackBar(context, Colors.green, state.message);
+            } else if (state is AuthLogoutFailureState) {
+              context.pop();
+              appSnackBar(context, Colors.red, state.message);
+            }
+          },
+        ),
+        BlocListener<NetworkBloc, NetworkState>(
+          listener: (context, state) {
+            if (state is NetworkConnectedState) {
+              appSnackBar(context, Colors.green, "ada_internet".tr());
+    
+              context.read<ProductBloc>().add(GetProductListEvent());
+    
+            } else if (state is NetworkDisconnectedState) {
+              appSnackBar(context, Colors.red, "tidak_ada_internet".tr());
+            }
+          },
+        )
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("hai".tr(args: [widget.user.username ?? ""])),
+          leading: BlocBuilder<TranslateBloc, TranslateState>(
+            builder: (_, state) {
+              return IconButton(
+                onPressed: () {
+                  _changeLanguage(context, state.languageCode);
+                },
+                icon: Text(state.previousCountryCode),
+                splashRadius: 20.r,
+              );
+            },
           ),
-        ],
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is AuthLogoutLoadingState) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AppLoadingWidget(),
-                  );
-                } else if (state is AuthLogoutSuccessState) {
-                  context.goNamed(AppRoute.login.name);
-                  appSnackBar(context, Colors.green, state.message);
-                } else if (state is AuthLogoutFailureState) {
-                  context.pop();
-                  appSnackBar(context, Colors.red, state.message);
-                }
+          actions: [
+            IconButton(
+              onPressed: () {
+                _logout(context);
               },
-            ),
-            BlocListener<NetworkBloc, NetworkState>(
-              listener: (context, state) {
-                if (state is NetworkConnectedState) {
-                  appSnackBar(context, Colors.green, "ada_internet".tr());
-
-                  context.read<ProductBloc>().add(GetProductListEvent());
-
-                } else if (state is NetworkDisconnectedState) {
-                  appSnackBar(context, Colors.red, "tidak_ada_internet".tr());
-                }
-              },
+              splashRadius: 20.r,
+              icon: const Icon(Icons.logout),
+              color: Colors.white,
             )
           ],
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text("hai".tr(args: [widget.user.username ?? ""])),
-              leading: BlocBuilder<TranslateBloc, TranslateState>(
-                builder: (_, state) {
-                  return IconButton(
-                    onPressed: () {
-                      _changeLanguage(context, state.languageCode);
-                    },
-                    icon: Text(state.previousCountryCode),
-                    splashRadius: 20.r,
-                  );
+        ),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 30.w),
+              child: FloatingActionButton(
+                heroTag: "theme",
+                onPressed: () {
+                  _changeTheme(context);
                 },
+                child: Icon(
+                  context.read<ThemeBloc>().state.isDarkMode
+                      ? Icons.light_mode_rounded
+                      : Icons.dark_mode_rounded,
+                ),
               ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    _logout(context);
-                  },
-                  splashRadius: 20.r,
-                  icon: const Icon(Icons.logout),
-                  color: Colors.white,
-                )
-              ],
             ),
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 30.w),
-                  child: FloatingActionButton(
-                    heroTag: "theme",
-                    onPressed: () {
-                      _changeTheme(context);
-                    },
-                    child: Icon(
-                      context.read<ThemeBloc>().state.isDarkMode
-                          ? Icons.light_mode_rounded
-                          : Icons.dark_mode_rounded,
-                    ),
-                  ),
+            FloatingActionButton.extended(
+              heroTag: "add_product",
+              onPressed: () => context.pushNamed(
+                AppRoute.createProduct.name,
+                extra: context,
+              ),
+              label: Text(
+                "tambah_produk".tr(),
+                style: TextStyle(
+                  color: context.read<ThemeBloc>().state.isDarkMode
+                      ? Colors.white
+                      : Colors.black,
                 ),
-                FloatingActionButton.extended(
-                  heroTag: "add_product",
-                  onPressed: () => context.pushNamed(
-                    AppRoute.createProduct.name,
-                    extra: context,
-                  ),
-                  label: Text(
-                    "tambah_produk".tr(),
-                    style: TextStyle(
-                      color: context.read<ThemeBloc>().state.isDarkMode
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-            body: RefreshIndicator(
-              onRefresh: () async{
-                context.read<ProductBloc>().add(GetProductListEvent());
-              },
-              child: const ProductDataWidget(),
-            ),
-          ),
-        ));
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async{
+            context.read<ProductBloc>().add(GetProductListEvent());
+          },
+          child: const ProductDataWidget(),
+        ),
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
-import '../../../../core/api/api_url.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../core/constants/error_message.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/logger.dart';
@@ -11,6 +12,9 @@ sealed class AuthRemoteDataSource {
   Future<void> logout();
   Future<void> register(RegisterModel model);
 }
+
+final users = FirebaseFirestore.instance.collection("users");
+
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
@@ -51,7 +55,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return;
     } on EmptyException {
-      await ApiUrl.users.add(model.toMap());
+      await users.add(model.toMap());
     } on DuplicateEmailException {
       rethrow;
     } catch (e) {
@@ -62,7 +66,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   Future<UserModel> _getUserByEmail(String email) async {
     try {
-      final result = await ApiUrl.users.where("email", isEqualTo: email).get();
+      final result = await users.where("email", isEqualTo: email).get();
       final doc = result.docs.first;
       final user = UserModel.fromJson(doc.data(), doc.id);
 
