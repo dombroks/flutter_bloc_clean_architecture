@@ -9,7 +9,7 @@ import '../../domain/repositories/product_repository.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../datasources/product_local_datasource.dart';
 import '../datasources/product_remote_datasource.dart';
-import '../models/models.dart';
+import '../models/product_dto.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductRemoteDataSource _remoteDataSource;
@@ -72,7 +72,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Either<Failure, void>> delete(DeleteProductParams params) async {
     try {
-      final model = DeleteProductModel(
+      final model = ProductDto(
         productId: params.productId,
       );
 
@@ -87,7 +87,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Either<Failure, void>> update(UpdateProductParams params) async {
     try {
-      final model = UpdateProductModel(
+      final model = ProductDto(
         productId: params.productId,
         name: params.name,
         price: params.price,

@@ -1,11 +1,11 @@
 import '../../domain/entities/product.dart';
 
 class ProductDto {
-  ProductDto({this.productId, required this.name, required this.price});
+  ProductDto({this.productId,  this.name,  this.price});
 
   final String? productId;
-  final String name;
-  final int price;
+  final String? name;
+  final int? price;
 
   factory ProductDto.fromJson(Map<String, dynamic> json) {
     return ProductDto(

@@ -2,7 +2,7 @@ import 'package:flutter_bloc_ca/src/core/utils/logger.dart';
 
 import '../../../../core/cache/local_storage.dart';
 import '../../../../core/errors/exceptions.dart';
-import '../models/get_product_model.dart';
+import '../models/product_dto.dart';
 
 sealed class ProductLocalDataSource {
   Future<List<ProductDto>> getAllProduct();

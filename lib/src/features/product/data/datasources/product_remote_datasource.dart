@@ -1,17 +1,17 @@
 import 'dart:developer';
 
-import 'package:flutter_bloc_ca/src/features/product/data/models/models.dart';
 
 import '../../../../core/api/api_helper.dart';
 import '../../../../core/api/api_url.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/logger.dart';
+import '../models/product_dto.dart';
 
 sealed class ProductRemoteDataSource {
   Future<List<ProductDto>> fetchProduct();
   Future<void> createProduct(ProductDto model);
-  Future<void> updateProduct(UpdateProductModel model);
-  Future<void> deleteProduct(DeleteProductModel model);
+  Future<void> updateProduct(ProductDto model);
+  Future<void> deleteProduct(ProductDto model);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -58,7 +58,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<void> deleteProduct(DeleteProductModel model) async {
+  Future<void> deleteProduct(ProductDto model) async {
     try {
       await ApiUrl.products.doc(model.productId).delete();
       return;
@@ -69,7 +69,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<void> updateProduct(UpdateProductModel model) async {
+  Future<void> updateProduct(ProductDto model) async {
     try {
       await ApiUrl.products.doc(model.productId).update(model.toMap());
       return;
