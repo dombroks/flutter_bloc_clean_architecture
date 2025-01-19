@@ -49,7 +49,7 @@ class LoginPage extends StatelessWidget {
                       } else if (state is AuthLoginSuccessState) {
                         final user = state.data;
                         context.goNamed(
-                          AppRoute.home.name,
+                          AppRoute.product.name,
                           pathParameters: {
                             "user_id": user.userId ?? "",
                             "email": user.email ?? "",

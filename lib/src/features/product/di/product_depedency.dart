@@ -14,7 +14,7 @@ class ProductDependency {
   ProductDependency._();
 
   static void init() {
-    getIt.registerFactory(
+    getIt.registerLazySingleton<ProductBloc>(
       () => ProductBloc(
         getIt<CreateProductUseCase>(),
         getIt<DeleteProductUseCase>(),

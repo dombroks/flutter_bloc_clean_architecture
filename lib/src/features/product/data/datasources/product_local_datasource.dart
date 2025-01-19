@@ -5,7 +5,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../models/get_product_model.dart';
 
 sealed class ProductLocalDataSource {
-  Future<List<ProductModel>> getAllProduct();
+  Future<List<ProductDto>> getAllProduct();
 }
 
 class ProductLocalDataSourceImpl implements ProductLocalDataSource {
@@ -13,16 +13,14 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   const ProductLocalDataSourceImpl(this._localStorage);
 
   @override
-  Future<List<ProductModel>> getAllProduct() => _getProductFromCache();
-
-  Future<List<ProductModel>> _getProductFromCache() async {
+  Future<List<ProductDto>> getAllProduct() async {
     try {
       final response = await _localStorage.load(
         key: "products",
         boxName: "cache",
       );
 
-      return ProductModel.fromMapList(response);
+      return ProductDto.fromMapList(response);
     } catch (e) {
       logger.e(e);
       throw CacheException();

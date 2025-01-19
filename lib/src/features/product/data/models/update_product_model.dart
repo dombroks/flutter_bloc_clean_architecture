@@ -1,6 +1,6 @@
-import '../../domain/entities/product_entity.dart';
+import '../../domain/entities/product.dart';
 
-class UpdateProductModel extends ProductEntity {
+class UpdateProductModel extends Product {
   const UpdateProductModel({
     required String productId,
     required String name,

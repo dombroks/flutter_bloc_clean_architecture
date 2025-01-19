@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc_ca/src/features/product/presentation/bloc/product/product_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../configs/injector/injector_conf.dart';
@@ -9,31 +10,30 @@ import '../../../../core/network/network_checker.dart';
 import '../../../../core/themes/app_color.dart';
 import '../../../../widgets/leading_back_button_widget.dart';
 import '../../../../widgets/snackbar_widget.dart';
-import '../bloc/product/product_bloc.dart';
 import '../bloc/product_form/product_form_bloc.dart';
 import '../widgets/create_product_input.dart';
 
 class CreateProductPage extends StatelessWidget {
-  final BuildContext ctx;
-  const CreateProductPage({
-    super.key,
-    required this.ctx,
-  });
+  const CreateProductPage({super.key});
 
   void _createProduct(BuildContext context) {
     primaryFocus?.unfocus();
+
     final formBloc = context.read<ProductFormBloc>().state;
+    final productBloc = context.read<ProductBloc>();
+
     if (formBloc.isValid) {
       final network = getIt<NetworkInfo>();
-      network.checkIsConnected.then(
+      network.isConnnectedToNetwork.then(
         (value) {
           if (value) {
-            context.read<ProductBloc>().add(
-                  CreateProductEvent(
-                    name: formBloc.name.trim(),
-                    price: int.parse(formBloc.price.trim()),
-                  ),
-                );
+            productBloc.add(
+              CreateProductEvent(
+                name: formBloc.name.trim(),
+                price: int.parse(formBloc.price.trim()),
+              ),
+            );
+        
           } else {
             appSnackBar(
               context,
@@ -52,9 +52,6 @@ class CreateProductPage extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => getIt<ProductFormBloc>(),
-        ),
-        BlocProvider.value(
-          value: ctx.read<ProductBloc>(),
         ),
       ],
       child: Scaffold(

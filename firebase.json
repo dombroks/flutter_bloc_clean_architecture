@@ -1,0 +1,26 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "bloc-clean-2025",
+          "appId": "1:902357783010:android:5c0569fd0613ed0e54a9bb",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "bloc-clean-2025",
+          "configurations": {
+            "android": "1:902357783010:android:5c0569fd0613ed0e54a9bb",
+            "ios": "1:902357783010:ios:dbb03f32445afbf354a9bb"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

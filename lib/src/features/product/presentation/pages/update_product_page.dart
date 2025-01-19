@@ -15,11 +15,9 @@ import '../bloc/product_form/product_form_bloc.dart';
 import '../widgets/update_product_input.dart';
 
 class UpdateProductPage extends StatelessWidget {
-  final BuildContext ctx;
   final UpdateProductParams productParams;
   const UpdateProductPage({
     super.key,
-    required this.ctx,
     required this.productParams,
   });
 
@@ -28,7 +26,7 @@ class UpdateProductPage extends StatelessWidget {
     final formBloc = context.read<ProductFormBloc>().state;
     if (formBloc.isValid) {
       final network = getIt<NetworkInfo>();
-      network.checkIsConnected.then(
+      network.isConnnectedToNetwork.then(
         (value) {
           if (value) {
             context.read<ProductBloc>().add(
@@ -56,9 +54,6 @@ class UpdateProductPage extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => getIt<ProductFormBloc>(),
-        ),
-        BlocProvider.value(
-          value: ctx.read<ProductBloc>(),
         ),
       ],
       child: Scaffold(

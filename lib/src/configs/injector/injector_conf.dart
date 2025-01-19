@@ -1,3 +1,4 @@
+import 'package:flutter_bloc_ca/src/core/blocs/network/network_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:get_it/get_it.dart';
@@ -13,6 +14,11 @@ void configureDepedencies() {
 
   getIt.registerLazySingleton(
     () => ThemeBloc(),
+  );
+
+
+  getIt.registerLazySingleton(
+    () => NetworkBloc(NetworkInfo(InternetConnectionChecker())),
   );
 
   getIt.registerLazySingleton(

@@ -4,7 +4,7 @@ import '../../../../core/cache/local_storage.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/network_checker.dart';
-import '../../domain/entities/product_entity.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../domain/usecases/usecase_params.dart';
 import '../datasources/product_local_datasource.dart';
@@ -26,7 +26,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Either<Failure, void>> create(CreateProductParams params) async {
     try {
-      final model = CreateProductModel(
+      final model = ProductDto(
         name: params.name,
         price: params.price,
       );
@@ -40,19 +40,19 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, List<ProductEntity>>> getAll() {
-    return _networkInfo.check<List<ProductEntity>>(
+  Future<Either<Failure, List<Product>>> getAll() {
+    return _networkInfo.check<List<Product>>(
       connected: () async {
         try {
           final listProduct = await _remoteDataSource.fetchProduct();
 
           await _localStorage.save(
             key: "products",
-            value: ProductModel.toMapList(listProduct),
+            value: ProductDto.toMapList(listProduct),
             boxName: "cache",
           );
 
-          return Right(listProduct);
+          return Right(listProduct.map((e) => e.toDomain()).toList());
         } on ServerException {
           return Left(ServerFailure());
         }
@@ -61,7 +61,7 @@ class ProductRepositoryImpl implements ProductRepository {
         try {
           final listProduct = await _localDataSource.getAllProduct();
 
-          return Right(listProduct);
+          return Right(listProduct.map((e) => e.toDomain()).toList());
         } on CacheException {
           return Left(CacheFailure());
         }

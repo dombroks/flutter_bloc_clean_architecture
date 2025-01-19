@@ -12,7 +12,7 @@ class ProductInitialState extends ProductState {}
 class GetProductListLoadingState extends ProductState {}
 
 class GetProductListSuccessState extends ProductState {
-  final List<ProductEntity> data;
+  final List<Product> data;
   const GetProductListSuccessState(this.data);
 
   @override

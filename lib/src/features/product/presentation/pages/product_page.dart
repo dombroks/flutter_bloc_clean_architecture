@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc_ca/src/core/blocs/network/network_bloc.dart';
+import 'package:flutter_bloc_ca/src/core/blocs/network/network_event.dart';
+import 'package:flutter_bloc_ca/src/core/blocs/network/network_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+
 
 import '../../../../configs/injector/injector_conf.dart';
 import '../../../../core/blocs/theme/theme_bloc.dart';
 import '../../../../core/blocs/translate/translate_bloc.dart';
 import '../../../../core/constants/list_translation_locale.dart';
-import '../../../../core/network/network_checker.dart';
 import '../../../../routes/app_route_path.dart';
 import '../../../../widgets/dialog_widget.dart';
 import '../../../../widgets/loading_widget.dart';
@@ -20,53 +23,34 @@ import '../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../bloc/product/product_bloc.dart';
 import '../widgets/product_list_tile.dart';
 
-class HomePage extends StatefulWidget {
+class ProductsPage extends StatefulWidget {
   final UserEntity user;
-  const HomePage({
+  const ProductsPage({
     super.key,
     required this.user,
   });
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ProductsPage> createState() => _ProductsPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late ProductBloc _productBloc;
+class _ProductsPageState extends State<ProductsPage> {
+ 
   late Timer _timer;
 
   @override
   void initState() {
-    _productBloc = getIt<ProductBloc>()..add(GetProductListEvent());
-    final network = getIt<NetworkInfo>();
+
+    context.read<NetworkBloc>().add(NetworkCheckEvent());
+
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
-      _checkInternetConnection(network);
+      context.read<NetworkBloc>().add(NetworkCheckEvent());
     });
 
     super.initState();
   }
 
-  void _checkInternetConnection(NetworkInfo network) {
-    network.checkIsConnected.then((event) {
-      if (network.getIsConnected != event) {
-        if (event && !network.getIsConnected) {
-          appSnackBar(
-            context,
-            Colors.green,
-            "ada_internet".tr(),
-          );
-          _productBloc.add(GetProductListEvent());
-        } else {
-          appSnackBar(
-            context,
-            Colors.red,
-            "tidak_ada_internet".tr(),
-          );
-        }
-      }
-      network.setIsConnected = event;
-    });
-  }
+
 
   @override
   void dispose() {
@@ -75,13 +59,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _changeLanguage(BuildContext context, String languageCode) {
-    final trBloc = context.read<TranslateBloc>();
+    final translationBloc = context.read<TranslateBloc>();
     if (languageCode == "id") {
       context.setLocale(englishLocale);
-      trBloc.add(TrEnglishEvent());
+      translationBloc.add(TrEnglishEvent());
     } else {
-      context.setLocale(indonesiaLocale);
-      trBloc.add(TrIndonesiaEvent());
+      // context.setLocale(indonesiaLocale);
+      // trBloc.add(TrIndonesiaEvent());
     }
     context.read<ProductBloc>().add(
           GetProductListEvent(),
@@ -112,31 +96,43 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => _productBloc,
-        ),
-        BlocProvider(
-          create: (_) => getIt<AuthBloc>(),
-        ),
-      ],
-      child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthLogoutLoadingState) {
-            showDialog(
-              context: context,
-              builder: (_) => const AppLoadingWidget(),
-            );
-          } else if (state is AuthLogoutSuccessState) {
-            context.goNamed(AppRoute.login.name);
-            appSnackBar(context, Colors.green, state.message);
-          } else if (state is AuthLogoutFailureState) {
-            context.pop();
-            appSnackBar(context, Colors.red, state.message);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
+        providers: [
+          BlocProvider(
+            create: (_) => getIt<AuthBloc>(),
+          ),
+        ],
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state is AuthLogoutLoadingState) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => const AppLoadingWidget(),
+                  );
+                } else if (state is AuthLogoutSuccessState) {
+                  context.goNamed(AppRoute.login.name);
+                  appSnackBar(context, Colors.green, state.message);
+                } else if (state is AuthLogoutFailureState) {
+                  context.pop();
+                  appSnackBar(context, Colors.red, state.message);
+                }
+              },
+            ),
+            BlocListener<NetworkBloc, NetworkState>(
+              listener: (context, state) {
+                if (state is NetworkConnectedState) {
+                  appSnackBar(context, Colors.green, "ada_internet".tr());
+
+                  context.read<ProductBloc>().add(GetProductListEvent());
+
+                } else if (state is NetworkDisconnectedState) {
+                  appSnackBar(context, Colors.red, "tidak_ada_internet".tr());
+                }
+              },
+            )
+          ],
+          child: Scaffold(
             appBar: AppBar(
               title: Text("hai".tr(args: [widget.user.username ?? ""])),
               leading: BlocBuilder<TranslateBloc, TranslateState>(
@@ -196,20 +192,12 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             body: RefreshIndicator(
-              onRefresh: () {
-                return Future.delayed(
-                  const Duration(seconds: 1),
-                ).then(
-                  (value) => context.read<ProductBloc>().add(
-                        GetProductListEvent(),
-                      ),
-                );
+              onRefresh: () async{
+                context.read<ProductBloc>().add(GetProductListEvent());
               },
               child: const ProductDataWidget(),
             ),
-          );
-        },
-      ),
-    );
+          ),
+        ));
   }
 }

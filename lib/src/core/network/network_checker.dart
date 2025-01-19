@@ -7,15 +7,19 @@ typedef EitherNetwork<T> = Future<Either<Failure, T>> Function();
 
 class NetworkInfo {
   final InternetConnectionChecker _connectionChecker;
+
   NetworkInfo(this._connectionChecker);
 
   bool _isConnected = true;
+
+  set setIsConnected(bool val) => _isConnected = val;
+  bool get getIsConnected => _isConnected;
 
   Future<Either<Failure, T>> check<T>({
     required EitherNetwork<T> connected,
     required EitherNetwork<T> notConnected,
   }) async {
-    final isConnected = await checkIsConnected;
+    final isConnected = await isConnnectedToNetwork;
     if (isConnected) {
       return connected.call();
     } else {
@@ -23,10 +27,9 @@ class NetworkInfo {
     }
   }
 
-  Future<bool> get checkIsConnected async =>
+  Future<bool> get isConnnectedToNetwork async =>
       await _connectionChecker.hasConnection;
 
-  set setIsConnected(bool val) => _isConnected = val;
 
-  bool get getIsConnected => _isConnected;
+  
 }

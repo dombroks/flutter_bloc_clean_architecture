@@ -12,6 +12,8 @@ import "src/configs/injector/injector_conf.dart";
 import "src/core/constants/list_translation_locale.dart";
 import "src/core/utils/observer.dart";
 
+
+
 //Test
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,9 +39,9 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [indonesiaLocale, englishLocale],
+      supportedLocales: const [englishLocale],
       path: "assets/translations",
-      startLocale: indonesiaLocale,
+      startLocale: englishLocale,
       child: const MyApp(),
     ),
   );

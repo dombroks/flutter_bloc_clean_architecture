@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc_ca/src/core/blocs/network/network_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'configs/injector/injector_conf.dart';
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
               create: (_) => getIt<TranslateBloc>(),
             ),
             BlocProvider(
+              create: (_) => getIt<NetworkBloc>(),
+            ),
+            BlocProvider(
               create: (_) =>
                   getIt<AuthBloc>()..add(AuthCheckSignInStatusEvent()),
             ),
@@ -50,7 +54,7 @@ class MyApp extends StatelessWidget {
                 };
 
                 router.goNamed(
-                  AppRoute.home.name,
+                  AppRoute.product.name,
                   pathParameters: userMap,
                 );
               }

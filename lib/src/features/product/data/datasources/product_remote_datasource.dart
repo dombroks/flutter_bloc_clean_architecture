@@ -8,8 +8,8 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/utils/logger.dart';
 
 sealed class ProductRemoteDataSource {
-  Future<List<ProductModel>> fetchProduct();
-  Future<void> createProduct(CreateProductModel model);
+  Future<List<ProductDto>> fetchProduct();
+  Future<void> createProduct(ProductDto model);
   Future<void> updateProduct(UpdateProductModel model);
   Future<void> deleteProduct(DeleteProductModel model);
 }
@@ -20,15 +20,15 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   const ProductRemoteDataSourceImpl(this._helper);
 
   @override
-  Future<List<ProductModel>> fetchProduct() => fetchProductFromUrl("");
+  Future<List<ProductDto>> fetchProduct() => fetchProductFromUrl("");
 
-  Future<List<ProductModel>> fetchProductFromUrl(String url) async {
+  Future<List<ProductDto>> fetchProductFromUrl(String url) async {
     try {
       // final response = await _helper.execute(method: Method.get, url: url);
       log(_helper.toString());
       final response = await ApiUrl.products.get();
 
-      return ProductModel.fromJsonList(response.docs
+      return ProductDto.fromJsonList(response.docs
           .map((e) => {
                 "product_id": e.id,
                 "name": e.data()["name"],
@@ -42,7 +42,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<void> createProduct(CreateProductModel model) async {
+  Future<void> createProduct(ProductDto model) async {
     try {
       // await _helper.execute(
       //   method: Method.post,

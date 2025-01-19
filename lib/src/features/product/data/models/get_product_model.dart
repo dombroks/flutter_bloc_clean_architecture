@@ -1,34 +1,34 @@
-import '../../domain/entities/product_entity.dart';
+import '../../domain/entities/product.dart';
 
-class ProductModel extends ProductEntity {
-  const ProductModel({
-    required String productId,
-    required String name,
-    required int price,
-  }) : super(productId: productId, name: name, price: price);
+class ProductDto {
+  ProductDto({this.productId, required this.name, required this.price});
 
-  factory ProductModel.fromJson(Map<String, dynamic> json) {
-    return ProductModel(
+  final String? productId;
+  final String name;
+  final int price;
+
+  factory ProductDto.fromJson(Map<String, dynamic> json) {
+    return ProductDto(
       productId: json["product_id"],
       name: json["name"],
       price: json["price"],
     );
   }
 
-  static List<ProductModel> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => ProductModel.fromJson(json)).toList();
+  static List<ProductDto> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => ProductDto.fromJson(json)).toList();
   }
 
-  factory ProductModel.fromMap(Map<dynamic, dynamic> map) {
-    return ProductModel(
+  factory ProductDto.fromMap(Map<dynamic, dynamic> map) {
+    return ProductDto(
       productId: map["product_id"],
       name: map["name"],
       price: map["price"],
     );
   }
 
-  static List<ProductModel> fromMapList(List<dynamic> mapList) {
-    return mapList.map((json) => ProductModel.fromMap(json)).toList();
+  static List<ProductDto> fromMapList(List<dynamic> mapList) {
+    return mapList.map((json) => ProductDto.fromMap(json)).toList();
   }
 
   Map<String, dynamic> toMap() {
@@ -39,7 +39,25 @@ class ProductModel extends ProductEntity {
     };
   }
 
-  static List<Map<String, dynamic>> toMapList(List<ProductModel> productList) {
+  static List<Map<String, dynamic>> toMapList(List<ProductDto> productList) {
     return productList.map((e) => e.toMap()).toList();
+  }
+
+  // Convert DTO to a domain model
+  Product toDomain() {
+    return Product(
+      productId: productId,
+      name: name,
+      price: price,
+    );
+  }
+
+  // Convert a domain model to DTO
+  static ProductDto fromDomain(Product product) {
+    return ProductDto(
+      productId: product.productId,
+      name: product.name!,
+      price: product.price!,
+    );
   }
 }

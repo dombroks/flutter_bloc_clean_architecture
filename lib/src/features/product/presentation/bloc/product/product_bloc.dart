@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/usecases/usecase.dart';
 import '../../../../../core/utils/failure_converter.dart';
 import '../../../../../core/utils/logger.dart';
-import '../../../domain/entities/product_entity.dart';
+import '../../../domain/entities/product.dart';
 import '../../../domain/usecases/create_product_usecase.dart';
 import '../../../domain/usecases/delete_product_usecase.dart';
 import '../../../domain/usecases/get_product_list_usecase.dart';

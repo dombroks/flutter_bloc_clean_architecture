@@ -1,6 +1,6 @@
-import '../../domain/entities/product_entity.dart';
+import '../../domain/entities/product.dart';
 
-class DeleteProductModel extends ProductEntity {
+class DeleteProductModel extends Product {
   const DeleteProductModel({
     required String productId,
   }) : super(productId: productId);
